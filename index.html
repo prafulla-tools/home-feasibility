@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Home Loan & EMI Planner — Under-Construction Property</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#f3ede1;
+    --paper-2:#ece4d4;
+    --card:#fbf7ee;
+    --ink:#1c1b17;
+    --ink-soft:#4a463c;
+    --line:#d8cfba;
+    --green:#1c4b3a;
+    --green-2:#2a6b52;
+    --amber:#b6792a;
+    --amber-soft:#e7b15a;
+    --red:#8a3324;
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 18px 40px -28px rgba(28,75,58,.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Hanken Grotesk',sans-serif;
+    background:
+      radial-gradient(120% 120% at 100% 0%, rgba(42,107,82,.07), transparent 55%),
+      radial-gradient(100% 100% at 0% 100%, rgba(182,121,42,.07), transparent 50%),
+      var(--paper);
+    color:var(--ink);
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:38px 22px 80px;}
+
+  header.masthead{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;margin-bottom:30px;position:relative;
+  }
+  .reset-btn{
+    position:absolute;top:0;right:0;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;
+    padding:6px 12px;border-radius:8px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+    transition:all .15s ease;
+  }
+  .reset-btn:hover{border-color:var(--red);color:var(--red);}
+  .save-note{font-size:12px;color:var(--green);font-style:italic;}
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--green);margin:0 0 8px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:900;font-size:clamp(30px,5vw,52px);
+    line-height:.98;margin:0;letter-spacing:-.015em;
+  }
+  h1 em{font-style:italic;font-weight:500;color:var(--green);}
+  .sub{font-size:15px;color:var(--ink-soft);margin:12px 0 0;max-width:64ch;}
+
+  .layout{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:26px;align-items:start;}
+  @media(max-width:880px){.layout{grid-template-columns:1fr;}}
+
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px;box-shadow:var(--shadow);
+  }
+  .panel + .panel{margin-top:22px;}
+  .panel-title{
+    font-family:'Fraunces',serif;font-weight:600;font-size:19px;margin:0 0 4px;
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .panel-note{font-size:12.5px;color:var(--ink-soft);margin:0 0 18px;}
+
+  .field{margin-bottom:22px;}
+  .field:last-child{margin-bottom:0;}
+  .field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:9px;}
+  .field-label{font-size:13px;font-weight:600;letter-spacing:.01em;}
+  .field-val{
+    font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;
+    color:var(--green);background:rgba(42,107,82,.09);
+    padding:3px 9px;border-radius:7px;white-space:nowrap;
+  }
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(to right,var(--green) var(--p,50%),var(--paper-2) var(--p,50%));
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;
+    background:var(--card);border:3px solid var(--green);cursor:pointer;
+    box-shadow:0 2px 6px rgba(28,75,58,.4);transition:transform .12s ease;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--card);
+    border:3px solid var(--green);cursor:pointer;
+  }
+
+  .seg{display:flex;gap:6px;flex-wrap:wrap;}
+  .seg button{
+    flex:1 1 auto;min-width:58px;font-family:'Hanken Grotesk',sans-serif;
+    font-size:13px;font-weight:600;padding:9px 6px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);
+    transition:all .15s ease;
+  }
+  .seg button:hover{border-color:var(--green-2);color:var(--green);}
+  .seg button.active{background:var(--green);border-color:var(--green);color:#f6f2e8;box-shadow:0 4px 12px -4px rgba(28,75,58,.6);}
+
+  /* prepayments */
+  .prepay-row{
+    display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:10px;
+  }
+  .mini-label{font-size:11px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .prepay-row input{
+    width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 9px;
+    border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);
+  }
+  .prepay-row input:focus{outline:none;border-color:var(--green-2);}
+
+  /* disbursement schedule */
+  .disb-grid{display:flex;flex-direction:column;gap:8px;}
+  .disb-row{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;}
+  .disb-row .yr{font-size:12.5px;font-weight:600;color:var(--ink-soft);min-width:120px;}
+  .disb-bar{position:relative;display:flex;align-items:center;gap:8px;}
+  .disb-row input{
+    width:74px;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:7px 8px;text-align:right;
+    border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);
+  }
+  .disb-row input:disabled{opacity:.55;cursor:not-allowed;background:var(--paper-2);}
+  .disb-row input:focus{outline:none;border-color:var(--green-2);}
+  .disb-row .pct{font-size:12px;color:var(--ink-soft);}
+  .disb-track{flex:1;height:6px;border-radius:6px;background:var(--paper-2);overflow:hidden;}
+  .disb-fill{height:100%;background:linear-gradient(90deg,var(--amber-soft),var(--amber));border-radius:6px;transition:width .2s ease;}
+  .disb-hint{font-size:11.5px;margin:10px 0 0;color:var(--ink-soft);}
+  .disb-hint.warn{color:var(--amber);}
+  #disbTotal.off{background:rgba(182,121,42,.16);color:var(--amber);}
+
+  /* then-value (booking) box */
+  .then-box{
+    display:flex;flex-direction:column;gap:2px;margin:-4px 0 22px;padding:13px 16px;border-radius:12px;
+    background:linear-gradient(150deg,rgba(28,75,58,.13),rgba(182,121,42,.07));border:1px solid var(--green-2);
+  }
+  .then-label{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  .then-val{font-family:'Fraunces',serif;font-weight:900;font-size:26px;line-height:1.05;color:var(--green);letter-spacing:-.01em;}
+  .then-note{font-size:12px;color:var(--amber);font-weight:600;font-family:'IBM Plex Mono',monospace;}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:2px solid var(--ink);padding-bottom:0;}
+  .tabs button{
+    font-family:'Fraunces',serif;font-weight:600;font-size:16px;cursor:pointer;
+    padding:11px 20px;border:none;background:transparent;color:var(--ink-soft);
+    border-radius:10px 10px 0 0;position:relative;top:2px;transition:all .15s ease;
+  }
+  .tabs button:hover{color:var(--green);}
+  .tabs button.active{background:var(--green);color:#f3ede1;}
+  .tabpane{display:none;}
+  .tabpane.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  /* outflow charge inputs */
+  .charge-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:520px){.charge-grid{grid-template-columns:repeat(2,1fr);}}
+  .ci{display:flex;align-items:center;gap:5px;}
+  .ci input{
+    width:100%;font-family:'IBM Plex Mono',monospace;font-size:14px;padding:8px 9px;text-align:right;
+    border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);
+  }
+  .ci input:focus{outline:none;border-color:var(--green-2);}
+  .ci span{font-size:13px;color:var(--ink-soft);}
+  .grp-label{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);font-weight:700;margin:18px 0 8px;}
+  .grp-label span{color:var(--ink-soft);font-weight:500;text-transform:none;letter-spacing:0;}
+
+  .onetime{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;}
+  .ot-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+  .ot-card .l{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin:0 0 5px;}
+  .ot-card .v{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin:0;}
+  .ot-card.tot{background:linear-gradient(160deg,rgba(28,75,58,.12),rgba(28,75,58,.03));border-color:var(--green-2);}
+  .ot-card.tot .v{color:var(--green);}
+  tbody tr.row-poss td{border-top:2px solid var(--amber);}
+  tbody tr.row-poss td:first-child::after{content:" · possession";color:var(--amber);font-size:11px;font-family:'IBM Plex Mono';}
+
+  /* net worth */
+  .nw-banner{margin-top:18px;border-radius:12px;padding:14px 16px;font-size:13.5px;display:none;border:1px solid;}
+  .nw-banner.ok{display:block;background:rgba(42,107,82,.09);border-color:var(--green-2);color:var(--green);}
+  .nw-banner.bad{display:block;background:rgba(138,51,36,.09);border-color:var(--red);color:var(--red);}
+  .nw-banner b{font-family:'IBM Plex Mono',monospace;}
+  .oneoff-row{display:grid;grid-template-columns:1.3fr .7fr .9fr auto;gap:8px;align-items:end;margin-bottom:10px;}
+  .oneoff-row input{
+    width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:8px 9px;
+    border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);
+  }
+  .oneoff-row input[type=text]{font-family:'Hanken Grotesk';}
+  .oneoff-row input:focus{outline:none;border-color:var(--green-2);}
+  tbody tr.row-red td{background:rgba(138,51,36,.12);}
+  tbody tr.row-red td:last-child{color:var(--red);font-weight:600;}
+  tbody tr.row-retire td{border-top:2px solid var(--green-2);}
+  tbody tr.row-retire td:first-child::after{content:" · retires";color:var(--green-2);font-size:11px;font-family:'IBM Plex Mono';}
+  .rm-btn{
+    border:1px solid var(--line);background:var(--paper);color:var(--red);
+    width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:17px;line-height:1;
+    transition:all .15s ease;
+  }
+  .rm-btn:hover{background:var(--red);color:#f6f2e8;border-color:var(--red);}
+  .add-btn{
+    width:100%;margin-top:4px;padding:10px;border-radius:9px;cursor:pointer;
+    border:1.5px dashed var(--green-2);background:transparent;color:var(--green);
+    font-family:'Hanken Grotesk';font-size:13px;font-weight:600;transition:all .15s ease;
+  }
+  .add-btn:hover{background:rgba(42,107,82,.08);}
+  .mode-toggle{display:flex;gap:6px;margin-top:14px;}
+  .empty-prepay{font-size:12.5px;color:var(--ink-soft);font-style:italic;margin:0 0 12px;}
+
+  /* results */
+  .hero-emi{
+    background:linear-gradient(135deg,var(--green),var(--green-2));
+    border-radius:14px;padding:24px 26px;color:#f3ede1;box-shadow:0 20px 44px -24px rgba(28,75,58,.85);
+    position:relative;overflow:hidden;
+  }
+  .hero-emi::after{
+    content:"₹";position:absolute;right:-10px;bottom:-44px;font-family:'Fraunces',serif;
+    font-size:200px;font-weight:900;opacity:.07;line-height:1;
+  }
+  .hero-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;opacity:.8;margin:0;}
+  .hero-val{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(34px,6vw,52px);line-height:1;margin:6px 0 4px;letter-spacing:-.02em;}
+  .hero-meta{font-size:13px;opacity:.9;margin:0;position:relative;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px;}
+  @media(max-width:480px){.stat-grid{grid-template-columns:1fr;}}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 16px;
+  }
+  .stat .l{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin:0 0 6px;}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;margin:0;letter-spacing:-.01em;}
+  .stat .v small{font-size:13px;color:var(--ink-soft);font-weight:500;}
+  .stat.accent{background:linear-gradient(160deg,rgba(182,121,42,.13),rgba(182,121,42,.04));border-color:var(--amber-soft);}
+  .stat.accent .v{color:var(--amber);}
+
+  .savings-banner{
+    margin-top:16px;border:1px solid var(--amber-soft);background:rgba(182,121,42,.08);
+    border-radius:12px;padding:14px 16px;font-size:13.5px;display:none;
+  }
+  .savings-banner b{color:var(--amber);font-family:'IBM Plex Mono',monospace;}
+
+  .chart-wrap{margin-top:22px;}
+  .chart-box{position:relative;height:300px;margin-top:6px;}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  details.sched{margin-top:22px;border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;}
+  details.sched summary{
+    cursor:pointer;padding:14px 18px;font-family:'Fraunces',serif;font-weight:600;font-size:16px;
+    list-style:none;display:flex;justify-content:space-between;align-items:center;
+  }
+  details.sched summary::-webkit-details-marker{display:none;}
+  details.sched summary .chev{transition:transform .2s ease;color:var(--green);}
+  details.sched[open] summary .chev{transform:rotate(180deg);}
+  .sched-bar{display:flex;align-items:center;gap:12px;padding:0 18px 14px;}
+  .sched-bar-label{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+  .sched-scroll{max-height:440px;overflow:auto;border-top:1px solid var(--line);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+    text-align:right;padding:9px 14px;color:var(--ink-soft);border-bottom:1px solid var(--line);
+    background:var(--paper-2);position:sticky;top:0;z-index:2;
+  }
+  thead th:first-child{text-align:left;}
+  tbody td{padding:8px 14px;text-align:right;font-family:'IBM Plex Mono',monospace;border-bottom:1px solid var(--line);}
+  tbody td:first-child{text-align:left;font-family:'Hanken Grotesk';font-weight:600;}
+  tbody tr.phase-pre td:first-child::after{content:" · pre-EMI";color:var(--amber);font-weight:500;font-size:11px;font-family:'IBM Plex Mono';}
+  tbody tr.has-prepay{background:rgba(182,121,42,.08);}
+  tbody tr:last-child td{border-bottom:none;}
+
+  .assump{margin-top:22px;font-size:12.5px;color:var(--ink-soft);}
+  .assump h4{font-family:'Fraunces',serif;font-weight:600;font-size:14px;color:var(--ink);margin:0 0 6px;}
+  .assump ul{margin:0;padding-left:18px;}
+  .assump li{margin-bottom:5px;}
+  .disclaimer{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <button id="resetBtn" class="reset-btn" title="Clear saved values and start fresh">↺ Reset</button>
+    <p class="kicker">Under-construction property · India</p>
+    <h1>Home Loan &amp; <em>EMI</em> Planner</h1>
+    <p class="sub">Model a construction-linked home loan — pay interest only until possession, with the loan disbursed in yearly tranches, then full EMIs after handover. Add optional lump-sum prepayments to see what they save you. <span class="save-note">Your inputs are saved in this browser.</span></p>
+  </header>
+
+  <div class="layout">
+    <!-- ============ CONTROLS ============ -->
+    <div>
+      <div class="panel">
+        <p class="panel-title">Loan inputs</p>
+        <p class="panel-note">Drag to set the deal. Everything recalculates live.</p>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Current house value</span><span class="field-val" id="houseVal">₹3.50 Cr</span></div>
+          <input type="range" id="house" min="1.5" max="5" step="0.05" value="3.5">
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Book after</span><span class="field-val" id="bookVal">Today</span></div>
+          <input type="range" id="bookDelay" min="0" max="15" step="1" value="0">
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Price growth / yr</span><span class="field-val" id="growthVal">10%</span></div>
+          <input type="range" id="growth" min="0" max="15" step="0.5" value="10">
+        </div>
+
+        <div class="then-box" id="thenBox">
+          <span class="then-label">Value at booking</span>
+          <span class="then-val" id="thenVal">₹3.50 Cr</span>
+          <span class="then-note" id="thenNote">buying today</span>
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Down payment</span><span class="field-val" id="dpVal">25% · ₹0.88 Cr</span></div>
+          <input type="range" id="dp" min="10" max="50" step="1" value="25">
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Interest rate (p.a.)</span><span class="field-val" id="rateVal">7.50%</span></div>
+          <input type="range" id="rate" min="7" max="10" step="0.05" value="7.5">
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Loan tenure</span><span class="field-val" id="tenVal">20 yrs</span></div>
+          <input type="range" id="tenure" min="10" max="30" step="1" value="20">
+        </div>
+
+        <div class="field">
+          <div class="field-head"><span class="field-label">Possession in</span><span class="field-val" id="posVal">3 years</span></div>
+          <div class="seg" id="posSeg">
+            <button data-v="0">Now</button>
+            <button data-v="2">2 yr</button>
+            <button data-v="3" class="active">3 yr</button>
+            <button data-v="4">4 yr</button>
+          </div>
+        </div>
+
+        <div class="field" id="disbField" style="margin-bottom:0;">
+          <div class="field-head">
+            <span class="field-label">Disbursement schedule</span>
+            <span class="field-val" id="disbTotal">100%</span>
+          </div>
+          <div class="seg" id="disbSeg" style="margin-bottom:12px;">
+            <button data-v="even" class="active">Even split</button>
+            <button data-v="custom">Custom</button>
+          </div>
+          <div id="disbFields" class="disb-grid"></div>
+          <p class="disb-hint" id="disbHint"></p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <p class="panel-title">Lump-sum prepayments <span style="font-size:12px;font-weight:400;color:var(--ink-soft)">(optional)</span></p>
+        <p class="panel-note">Throw extra money at the loan in any year to cut interest.</p>
+        <div id="prepayList"></div>
+        <button class="add-btn" id="addPrepay">+ Add a prepayment</button>
+
+        <div class="field" style="margin-top:18px;margin-bottom:0;">
+          <span class="field-label" style="display:block;margin-bottom:8px;">A prepayment should…</span>
+          <div class="seg mode-toggle" id="modeSeg">
+            <button data-v="reduceTenure" class="active">Shorten tenure</button>
+            <button data-v="reduceEMI">Lower EMI</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ RESULTS ============ -->
+    <div>
+      <div class="tabs" id="tabs">
+        <button data-tab="emi" class="active">Loan &amp; EMI</button>
+        <button data-tab="outflow">Money outflow</button>
+        <button data-tab="net">Net worth</button>
+      </div>
+
+      <div class="tabpane active" id="tab-emi">
+      <div class="hero-emi">
+        <p class="hero-label">Monthly EMI after possession</p>
+        <p class="hero-val" id="emiBig">₹0</p>
+        <p class="hero-meta" id="emiMeta">—</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat"><p class="l">Loan amount</p><p class="v" id="loanAmt">—</p></div>
+        <div class="stat"><p class="l">Pre-EMI / month (construction)</p><p class="v" id="preEmi">—</p></div>
+        <div class="stat accent"><p class="l">Total interest paid</p><p class="v" id="totInt">—</p></div>
+        <div class="stat"><p class="l">Total outflow (loan)</p><p class="v" id="totOut">—</p></div>
+      </div>
+
+      <div class="savings-banner" id="savings"></div>
+
+      <div class="panel chart-wrap">
+        <p class="panel-title">Outstanding balance over time</p>
+        <div class="chart-box"><canvas id="chart"></canvas></div>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--amber)"></i>Construction (disbursing + pre-EMI)</span>
+          <span><i class="dot" style="background:var(--green)"></i>Repayment (EMI)</span>
+          <span><i class="dot" style="background:var(--red)"></i>Prepayment</span>
+        </div>
+      </div>
+
+      <details class="sched" open>
+        <summary>Repayment schedule <span class="chev">▾</span></summary>
+        <div class="sched-bar">
+          <span class="sched-bar-label">View</span>
+          <div class="seg" id="viewSeg" style="max-width:230px;">
+            <button data-v="year" class="active">Yearly</button>
+            <button data-v="month">Monthly</button>
+          </div>
+        </div>
+        <div class="sched-scroll">
+          <table>
+            <thead id="schedHead"></thead>
+            <tbody id="schedBody"></tbody>
+          </table>
+        </div>
+      </details>
+
+      <div class="panel assump">
+        <h4>How this is calculated</h4>
+        <ul>
+          <li><b>Disbursement:</b> the loan is released in yearly tranches across the construction period. Use <b>Even split</b> for equal tranches (e.g. 4-year possession = 25%/year) or switch to <b>Custom</b> to set the exact percentage released at the start of each year. Immediate possession releases 100% upfront.</li>
+          <li><b>Pre-EMI:</b> until possession you pay only interest on the amount disbursed so far — so it starts small and rises with each tranche. Principal is untouched in this phase.</li>
+          <li><b>EMI:</b> the full reducing-balance EMI begins at possession and runs for the chosen tenure. EMI = P·r·(1+r)<sup>n</sup> / ((1+r)<sup>n</sup>−1).</li>
+          <li><b>Prepayments</b> hit the outstanding principal in the year you set, then either shorten the tenure (EMI fixed) or lower the EMI (tenure fixed), per your choice.</li>
+        </ul>
+        <p class="disclaimer">Estimates only. Banks compute on daily/monthly reducing balance with their own rounding, and may add processing fees, insurance, GST and stamp duty (not modelled here). Floating rates change with the RBI repo rate. Confirm exact figures with your lender. This is not financial advice.</p>
+      </div>
+      </div><!-- /tab-emi -->
+
+      <!-- ============ MONEY OUTFLOW PANE ============ -->
+      <div class="tabpane" id="tab-outflow">
+        <div class="panel">
+          <p class="panel-title">Outflow assumptions</p>
+          <p class="panel-note">Recurring living costs plus the one-time house-buying charges.</p>
+
+          <div class="field">
+            <div class="field-head"><span class="field-label">Monthly rent (until possession)</span><span class="field-val" id="rentVal">₹60,000</span></div>
+            <input type="range" id="rent" min="0" max="300000" step="5000" value="60000">
+          </div>
+
+          <p class="grp-label">Recurring expenses</p>
+          <div class="charge-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div><label class="mini-label">Rent hike / yr</label>
+              <div class="ci"><input type="number" id="rentInc" min="0" max="25" step="0.5" value="7.5"><span>%</span></div></div>
+            <div><label class="mini-label">Household / mo</label>
+              <div class="ci"><input type="number" id="household" min="0" step="5000" value="100000"><span>₹</span></div></div>
+            <div><label class="mini-label">Household hike / yr</label>
+              <div class="ci"><input type="number" id="householdInc" min="0" max="20" step="0.5" value="6"><span>%</span></div></div>
+          </div>
+
+          <p class="grp-label">House-buying charges <span>— one-time at possession, % of house price</span></p>
+          <div class="charge-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div><label class="mini-label">GST</label>
+              <div class="ci"><input type="number" id="gst" min="0" max="28" step="0.5" value="5"><span>%</span></div></div>
+            <div><label class="mini-label">Registration</label>
+              <div class="ci"><input type="number" id="reg" min="0" max="15" step="0.5" value="7.5"><span>%</span></div></div>
+            <div><label class="mini-label">Overhead</label>
+              <div class="ci"><input type="number" id="ovh" min="0" max="15" step="0.5" value="5"><span>%</span></div></div>
+          </div>
+          <p class="disb-hint" id="chargeHint"></p>
+        </div>
+
+        <div class="stat-grid" style="margin-top:22px;">
+          <div class="stat"><p class="l">From Salary (rent + EMI + household)</p><p class="v" id="ofSalary">—</p></div>
+          <div class="stat accent"><p class="l">From Savings (down pmt + house charges)</p><p class="v" id="ofSavings">—</p></div>
+          <div class="stat"><p class="l">Total outflow</p><p class="v" id="ofTotal">—</p></div>
+          <div class="stat"><p class="l">Peak month outflow</p><p class="v" id="ofPeak">—</p></div>
+        </div>
+
+        <div class="panel chart-wrap">
+          <div class="sched-bar" style="padding:0 0 14px;justify-content:space-between;">
+            <p class="panel-title" style="margin:0;">Monthly outflow</p>
+            <div class="seg" id="ofViewSeg" style="max-width:200px;">
+              <button data-v="month" class="active">Monthly</button>
+              <button data-v="year">Yearly</button>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="ofChart"></canvas></div>
+          <div class="legend">
+            <span><i class="dot" style="background:var(--green)"></i>From salary — rent + EMI + household</span>
+            <span><i class="dot" style="background:var(--amber)"></i>From savings — down pmt, house-buying charges, prepay</span>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:22px;">
+          <p class="panel-title">House-buying charges at possession</p>
+          <p class="panel-note">One-time house-purchase costs paid from savings (GST, registration &amp; overhead on the house price, plus down payment).</p>
+          <div class="onetime" id="onetime"></div>
+        </div>
+
+        <details class="sched" open style="margin-top:22px;">
+          <summary>Outflow schedule <span class="chev">▾</span></summary>
+          <div class="sched-bar">
+            <span class="sched-bar-label">View</span>
+            <div class="seg" id="ofTblSeg" style="max-width:230px;">
+              <button data-v="year" class="active">Yearly</button>
+              <button data-v="month">Monthly</button>
+            </div>
+          </div>
+          <div class="sched-scroll">
+            <table>
+              <thead id="ofHead"></thead>
+              <tbody id="ofBody"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <div class="panel assump" style="margin-top:22px;">
+          <h4>How outflow is split</h4>
+          <ul>
+            <li><b>From salary</b> (recurring, paid from monthly income): household living expenses (excluding rent, rising by the household hike each year), rent until possession, and the loan payment — pre-EMI during construction, full EMI after.</li>
+            <li><b>From savings</b> (lumpy, paid from your corpus): the down payment released in step with the loan tranches, plus the <b>house-buying charges — GST, registration/stamp duty and overhead</b> applied to the house price as a one-time hit at possession, and any lump-sum prepayments.</li>
+          </ul>
+          <p class="disclaimer">GST, registration/stamp duty and incidental overhead are house-purchase charges that vary by state, project type and date — simplified placeholders applied to the full house price at possession. Household is general living expense, separate from the home. Verify actual rates locally. Not financial advice.</p>
+        </div>
+      </div><!-- /tab-outflow -->
+
+      <!-- ============ NET WORTH PANE ============ -->
+      <div class="tabpane" id="tab-net">
+        <div class="panel">
+          <p class="panel-title">Income &amp; savings</p>
+          <p class="panel-note">Whatever you don't spend is saved. The corpus compounds; deficits draw it down.</p>
+
+          <div class="field">
+            <div class="field-head"><span class="field-label">Starting monthly income</span><span class="field-val" id="incVal">₹4,50,000</span></div>
+            <input type="range" id="income" min="50000" max="2000000" step="10000" value="450000">
+          </div>
+          <div class="field">
+            <div class="field-head"><span class="field-label">Starting savings (corpus)</span><span class="field-val" id="savVal">₹1.20 Cr</span></div>
+            <input type="range" id="corpus" min="0" max="500" step="5" value="120">
+          </div>
+          <div class="field">
+            <div class="field-head"><span class="field-label">Retire after</span><span class="field-val" id="retVal">25 years</span></div>
+            <input type="range" id="retire" min="5" max="45" step="1" value="25">
+          </div>
+
+          <div class="charge-grid" style="grid-template-columns:repeat(2,1fr);">
+            <div><label class="mini-label">Salary growth / yr</label>
+              <div class="ci"><input type="number" id="incGrow" min="0" max="30" step="0.5" value="9"><span>%</span></div></div>
+            <div><label class="mini-label">Corpus return / yr</label>
+              <div class="ci"><input type="number" id="savRet" min="0" max="25" step="0.5" value="12"><span>%</span></div></div>
+          </div>
+          <p class="disb-hint">Household expense is set in the <b>Money outflow</b> tab and counts toward spend here too.</p>
+        </div>
+
+        <div class="panel" style="margin-top:22px;">
+          <p class="panel-title">One-off income <span style="font-size:12px;font-weight:400;color:var(--ink-soft)">(bonus, RSU, etc.)</span></p>
+          <p class="panel-note">Lump-sum money landing in a given year — added to that month's inflow.</p>
+          <div id="oneoffList"></div>
+          <button class="add-btn" id="addOneoff">+ Add a lump-sum income</button>
+        </div>
+
+        <div class="nw-banner" id="nwBanner"></div>
+
+        <div class="stat-grid" style="margin-top:22px;">
+          <div class="stat accent"><p class="l">Ending total net worth</p><p class="v" id="nwTotal">—</p></div>
+          <div class="stat"><p class="l">Ending liquid (cash)</p><p class="v" id="nwEnd">—</p></div>
+          <div class="stat"><p class="l">Lowest liquid point</p><p class="v" id="nwLow">—</p></div>
+          <div class="stat"><p class="l">Months in the red</p><p class="v" id="nwRed">—</p></div>
+        </div>
+
+        <div class="panel chart-wrap">
+          <div class="sched-bar" style="padding:0 0 14px;justify-content:space-between;">
+            <p class="panel-title" style="margin:0;">Liquid net worth</p>
+            <div class="seg" id="nwViewSeg" style="max-width:260px;">
+              <button data-v="networth" class="active">Net worth</button>
+              <button data-v="flow">Monthly flow</button>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="nwChart"></canvas></div>
+          <div class="legend" id="nwLegend"></div>
+        </div>
+
+        <details class="sched" open style="margin-top:22px;">
+          <summary>Cash-flow schedule <span class="chev">▾</span></summary>
+          <div class="sched-bar">
+            <span class="sched-bar-label">View</span>
+            <div class="seg" id="nwTblSeg" style="max-width:230px;">
+              <button data-v="year" class="active">Yearly</button>
+              <button data-v="month">Monthly</button>
+            </div>
+          </div>
+          <div class="sched-scroll">
+            <table>
+              <thead id="nwHead"></thead>
+              <tbody id="nwBody"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <div class="panel assump" style="margin-top:22px;">
+          <h4>How net worth is tracked</h4>
+          <ul>
+            <li><b>Inflow</b> each month = salary (growing yearly until you retire, then zero) plus any one-off bonus/RSU landing that month. The timeline runs past loan payoff to ~10 years beyond retirement so you can see whether the corpus sustains household spend once the salary stops.</li>
+            <li><b>Outflow</b> each month = household expense (excluding rent, growing yearly) plus everything from the Money-outflow tab (rent, EMI/pre-EMI, down-payment, charges, prepayments).</li>
+            <li><b>Liquid (cash)</b> starts at your corpus, compounds monthly at the corpus return, and rises or falls by each month's surplus or deficit. Months where it turns negative are flagged red — you'd be out of cash.</li>
+            <li><b>Home equity</b>: while the home is under construction it's just the money you've paid in (down payments — recoverable at par, no gain). From possession it becomes the sell-&-settle value: market value (appreciating from booking) minus the outstanding loan. <b>Total net worth = liquid cash + home equity</b>, so the table reconciles exactly: Total = Liquid + Home equity. Down payments and EMI principal shift cash into equity rather than destroying it; only interest, rent, charges and household spend are true losses.</li>
+          </ul>
+          <p class="disclaimer">Highly simplified: one blended return on all savings, no tax on income/gains, no emergency buffer, growth applied in yearly steps. "In the red" tracks liquid cash only — total net worth can look healthy while you're still cash-poor, which is why both lines matter. For planning intuition, not financial advice.</p>
+        </div>
+      </div><!-- /tab-net -->
+    </div>
+  </div>
+</div>
+
+<script>
+const INR = new Intl.NumberFormat('en-IN',{maximumFractionDigits:0});
+const fmtRupee = n => '₹' + INR.format(Math.round(n));
+function fmtCr(n){ // n in rupees
+  if(n>=1e7) return '₹'+(n/1e7).toFixed(2)+' Cr';
+  if(n>=1e5) return '₹'+(n/1e5).toFixed(2)+' L';
+  return '₹'+INR.format(Math.round(n));
+}
+function fmtCrS(n){ return (n<0?'−':'')+fmtCr(Math.abs(n)); } // signed
+function yrMo(months){
+  const y=Math.floor(months/12), m=Math.round(months%12);
+  let s = y>0 ? y+' yr':'';
+  if(m>0) s+=(s?' ':'')+m+' mo';
+  return s||'0 mo';
+}
+
+const els = {
+  house:document.getElementById('house'), dp:document.getElementById('dp'),
+  rate:document.getElementById('rate'), tenure:document.getElementById('tenure'),
+};
+let possession = 3;
+let prepayMode = 'reduceTenure';
+let prepays = []; // {year, lakh}
+let lastSim = null;
+let schedView = 'year';
+let disbMode = 'even';      // 'even' | 'custom'
+let disbCustom = [];        // per-construction-year percentages
+
+// ---- slider fill + label updates ----
+function paintSlider(el){
+  const min=+el.min, max=+el.max, v=+el.value;
+  el.style.setProperty('--p', ((v-min)/(max-min)*100)+'%');
+}
+['house','dp','rate','tenure','bookDelay','growth','income','corpus','retire'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('input',()=>{paintSlider(el);recalc();});
+  paintSlider(el);
+});
+
+// possession segmented control
+document.querySelectorAll('#posSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#posSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); possession=+b.dataset.v;
+    syncDisb(); renderDisb(); recalc();
+  });
+});
+// disbursement mode toggle
+document.querySelectorAll('#disbSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#disbSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); disbMode=b.dataset.v; renderDisb(); recalc();
+  });
+});
+// mode toggle
+document.querySelectorAll('#modeSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#modeSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); prepayMode=b.dataset.v; recalc();
+  });
+});
+// schedule view toggle (yearly / monthly) — no recompute needed
+document.querySelectorAll('#viewSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#viewSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); schedView=b.dataset.v; renderSchedule(); saveState();
+  });
+});
+
+// ---- outflow tab state + controls ----
+let activeTab='emi';
+let ofChartView='month';
+let ofTblView='year';
+let outflowChart=null;
+let lastOutflow=null;
+
+document.querySelectorAll('#tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); activeTab=b.dataset.tab;
+    document.getElementById('tab-'+activeTab).classList.add('active');
+    saveState();
+    setTimeout(()=>{
+      if(activeTab==='outflow'&&outflowChart) outflowChart.resize();
+      if(activeTab==='emi'&&chart) chart.resize();
+      if(activeTab==='net'&&netChart) netChart.resize();
+    },30);
+  });
+});
+// rent slider
+const rentEl=document.getElementById('rent');
+rentEl.addEventListener('input',()=>{paintSlider(rentEl);recalc();});
+paintSlider(rentEl);
+// charge number inputs
+['rentInc','gst','reg','ovh','household','householdInc'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',recalc);
+});
+// outflow chart view toggle
+document.querySelectorAll('#ofViewSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#ofViewSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); ofChartView=b.dataset.v; drawOfChart(); saveState();
+  });
+});
+// outflow table view toggle
+document.querySelectorAll('#ofTblSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#ofTblSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); ofTblView=b.dataset.v; renderOfTable(); saveState();
+  });
+});
+
+// ---- net worth tab state + controls ----
+let netChartView='networth';
+let netTblView='year';
+let netChart=null;
+let lastNet=null;
+let oneoffs=[]; // {year, lakh, label}
+['incGrow','savRet'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',recalc);
+});
+document.querySelectorAll('#nwViewSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#nwViewSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); netChartView=b.dataset.v; drawNetChart(); saveState();
+  });
+});
+document.querySelectorAll('#nwTblSeg button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#nwTblSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); netTblView=b.dataset.v; renderNetTable(); saveState();
+  });
+});
+// one-off income UI
+const oneoffList=document.getElementById('oneoffList');
+document.getElementById('addOneoff').addEventListener('click',()=>{
+  oneoffs.push({year:3, lakh:20, label:'Bonus'});
+  renderOneoffs(); recalc();
+});
+function renderOneoffs(){
+  oneoffList.innerHTML='';
+  if(oneoffs.length===0){
+    oneoffList.innerHTML='<p class="empty-prepay">No lump sums added. Add a bonus or RSU sale to model windfalls.</p>';
+    return;
+  }
+  oneoffs.forEach((o,i)=>{
+    const row=document.createElement('div'); row.className='oneoff-row';
+    row.innerHTML=`
+      <div><label class="mini-label">Label</label>
+        <input type="text" value="${o.label}" data-i="${i}" data-k="label"></div>
+      <div><label class="mini-label">Year</label>
+        <input type="number" min="1" step="1" value="${o.year}" data-i="${i}" data-k="year"></div>
+      <div><label class="mini-label">₹ Lakh</label>
+        <input type="number" min="0" step="1" value="${o.lakh}" data-i="${i}" data-k="lakh"></div>
+      <button class="rm-btn" data-rm="${i}" title="Remove">×</button>`;
+    oneoffList.appendChild(row);
+  });
+  oneoffList.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const i=+inp.dataset.i, k=inp.dataset.k;
+      oneoffs[i][k] = k==='label' ? inp.value : Math.max(0,+inp.value||0);
+      recalc();
+    });
+  });
+  oneoffList.querySelectorAll('[data-rm]').forEach(btn=>{
+    btn.addEventListener('click',()=>{oneoffs.splice(+btn.dataset.rm,1);renderOneoffs();recalc();});
+  });
+}
+
+// ---- prepayments UI ----
+const prepayList=document.getElementById('prepayList');
+document.getElementById('addPrepay').addEventListener('click',()=>{
+  const tenure=+els.tenure.value;
+  prepays.push({year:Math.min(2, tenure+possession), lakh:25});
+  renderPrepays(); recalc();
+});
+function renderPrepays(){
+  prepayList.innerHTML='';
+  if(prepays.length===0){
+    prepayList.innerHTML='<p class="empty-prepay">No prepayments added. Add one to test the impact.</p>';
+    return;
+  }
+  prepays.forEach((p,i)=>{
+    const row=document.createElement('div'); row.className='prepay-row';
+    row.innerHTML=`
+      <div><label class="mini-label">In year</label>
+        <input type="number" min="1" step="1" value="${p.year}" data-i="${i}" data-k="year"></div>
+      <div><label class="mini-label">Amount (₹ Lakh)</label>
+        <input type="number" min="1" step="1" value="${p.lakh}" data-i="${i}" data-k="lakh"></div>
+      <button class="rm-btn" data-rm="${i}" title="Remove">×</button>`;
+    prepayList.appendChild(row);
+  });
+  prepayList.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const i=+inp.dataset.i, k=inp.dataset.k;
+      prepays[i][k]=Math.max(0,+inp.value||0); recalc();
+    });
+  });
+  prepayList.querySelectorAll('[data-rm]').forEach(btn=>{
+    btn.addEventListener('click',()=>{prepays.splice(+btn.dataset.rm,1);renderPrepays();recalc();});
+  });
+}
+
+// ---- disbursement schedule UI ----
+const disbFields=document.getElementById('disbFields');
+const disbField=document.getElementById('disbField');
+const disbTotalEl=document.getElementById('disbTotal');
+const disbHint=document.getElementById('disbHint');
+
+// keep disbCustom length == possession (reset to even split on structural change)
+function syncDisb(){
+  if(possession<=0){ disbCustom=[]; return; }
+  const even=+(100/possession).toFixed(2);
+  disbCustom=Array(possession).fill(even);
+  // fix rounding so it sums to exactly 100
+  const drift=+(100 - disbCustom.reduce((a,b)=>a+b,0)).toFixed(2);
+  disbCustom[disbCustom.length-1]=+(disbCustom[disbCustom.length-1]+drift).toFixed(2);
+}
+
+function disbSum(){ return disbCustom.reduce((a,b)=>a+(+b||0),0); }
+
+function renderDisb(){
+  // immediate possession: nothing to schedule
+  if(possession<=0){
+    disbField.style.display='none';
+    return;
+  }
+  disbField.style.display='';
+  const custom = disbMode==='custom';
+  disbFields.style.display = custom ? '' : 'none';
+
+  // values to show: custom edits, or the even split
+  const vals = custom ? disbCustom : Array(possession).fill(100/possession);
+
+  disbFields.innerHTML='';
+  vals.forEach((v,i)=>{
+    const row=document.createElement('div'); row.className='disb-row';
+    row.innerHTML=`<span class="yr">Start of year ${i+1}</span>
+      <div class="disb-bar">
+        <div class="disb-track"><div class="disb-fill" style="width:${Math.min(100,v)}%"></div></div>
+        <input type="number" min="0" max="100" step="1" value="${+v.toFixed(2)}" data-i="${i}" ${custom?'':'disabled'}>
+        <span class="pct">%</span>
+      </div>`;
+    disbFields.appendChild(row);
+  });
+  disbFields.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      disbCustom[+inp.dataset.i]=Math.max(0,+inp.value||0);
+      const fill=inp.closest('.disb-row').querySelector('.disb-fill');
+      fill.style.width=Math.min(100,disbCustom[+inp.dataset.i])+'%';
+      updateDisbTotal(); recalc();
+    });
+  });
+  updateDisbTotal();
+}
+
+function updateDisbTotal(){
+  if(possession<=0){ disbTotalEl.textContent='100%'; disbTotalEl.classList.remove('off'); disbHint.textContent=''; return; }
+  if(disbMode!=='custom'){
+    disbTotalEl.textContent='100%'; disbTotalEl.classList.remove('off');
+    disbHint.className='disb-hint';
+    disbHint.textContent=`Loan released evenly — ${(100/possession).toFixed(0)}% at the start of each of the ${possession} construction years.`;
+    return;
+  }
+  const sum=disbSum();
+  disbTotalEl.textContent=sum.toFixed(0)+'%';
+  if(Math.abs(sum-100)>0.5){
+    disbTotalEl.classList.add('off');
+    disbHint.className='disb-hint warn';
+    disbHint.textContent=`Tranches total ${sum.toFixed(0)}% — they'll be scaled to the full loan so 100% is disbursed by possession.`;
+  } else {
+    disbTotalEl.classList.remove('off');
+    disbHint.className='disb-hint';
+    disbHint.textContent='Tranches released at the start of each construction year.';
+  }
+}
+
+// fractions (sum to 1) passed to the simulator; null = even
+function disbFractions(){
+  if(possession<=0 || disbMode!=='custom') return null;
+  const sum=disbSum();
+  if(sum<=0) return null;
+  return disbCustom.map(v=>(+v||0)/sum);
+}
+
+// ---- core simulation ----
+function emiFor(P,r,n){
+  if(n<=0) return P;
+  if(r===0) return P/n;
+  const f=Math.pow(1+r,n);
+  return P*r*f/(f-1);
+}
+function simulate(house,dpPct,annual,tenureY,posY,prepayArr,mode,disbFracs){
+  const loan = house*(1-dpPct/100);
+  const r = annual/100/12;
+  const tenureM = tenureY*12;
+  const consM = posY*12;
+  // disbursement fractions per construction year (normalised to sum to 1)
+  let fracs = (disbFracs && disbFracs.length===posY) ? disbFracs.slice() : Array(posY).fill(1/posY);
+  const fsum = fracs.reduce((a,b)=>a+b,0);
+  if(fsum>0) fracs = fracs.map(f=>f/fsum); else fracs = Array(posY).fill(1/posY);
+  // prepayments mapped to absolute month index (start of the chosen year)
+  const pmap={};
+  prepayArr.forEach(p=>{
+    if(p.lakh>0 && p.year>=1){
+      const m=(p.year-1)*12;
+      pmap[m]=(pmap[m]||0)+p.lakh*1e5;
+    }
+  });
+
+  const rows=[]; // {m,phase,interest,principal,prepay,balance,disb}
+  let balance=0, month=0, preInt=0, emiInt=0, totPrepay=0;
+  let firstPre=null, lastPre=0;
+
+  // construction
+  if(consM>0){
+    for(month=0; month<consM; month++){
+      if(month%12===0) balance += loan*fracs[month/12];
+      const interest=balance*r; preInt+=interest;
+      if(firstPre===null && interest>0) firstPre=interest;
+      lastPre=interest;
+      let prepay=0;
+      if(pmap[month]){ prepay=Math.min(pmap[month],balance); balance-=prepay; totPrepay+=prepay; }
+      rows.push({m:month,phase:'pre',interest,principal:0,prepay,balance});
+    }
+  } else { balance=loan; }
+
+  // EMI phase
+  let emi=emiFor(balance,r,tenureM);
+  const baseEmi=emi;
+  let monthsLeft=tenureM, guard=0;
+  while(balance>0.5 && guard<2000){
+    guard++;
+    const interest=balance*r; emiInt+=interest;
+    let principal=emi-interest;
+    if(principal<0) principal=0;             // EMI < interest (rare) — interest-only
+    if(principal>balance) principal=balance;
+    balance-=principal;
+    let prepay=0;
+    if(pmap[month]){ prepay=Math.min(pmap[month],balance); balance-=prepay; totPrepay+=prepay; }
+    monthsLeft--;
+    rows.push({m:month,phase:'emi',interest,principal,prepay,balance});
+    month++;
+    if(prepay>0 && mode==='reduceEMI' && monthsLeft>0 && balance>0.5){
+      emi=emiFor(balance,r,monthsLeft);
+    }
+    if(mode==='reduceEMI' && monthsLeft<=0) break;
+  }
+
+  const actualEmiMonths = month - consM;
+  return {
+    loan, downpay:house*dpPct/100, baseEmi,
+    preIntTotal:preInt, emiIntTotal:emiInt, totalInt:preInt+emiInt,
+    firstPre:firstPre||0, lastPre, totPrepay,
+    actualEmiMonths, consM, rows,
+    totalOutflow: loan + preInt + emiInt // principal repaid + all interest (prepay is part of principal)
+  };
+}
+
+let chart=null;
+function recalc(){
+  const currentHouse=+els.house.value*1e7;
+  const delayYears=+document.getElementById('bookDelay').value;
+  const growth=+document.getElementById('growth').value;
+  const house=currentHouse*Math.pow(1+growth/100, delayYears); // "then value" used everywhere
+  const dpPct=+els.dp.value;
+  const annual=+els.rate.value;
+  const tenureY=+els.tenure.value;
+
+  // labels
+  document.getElementById('houseVal').textContent=fmtCr(currentHouse);
+  document.getElementById('bookVal').textContent=delayYears===0?'Today':delayYears+(delayYears===1?' year':' years');
+  document.getElementById('growthVal').textContent=growth.toFixed(1)+'%';
+  document.getElementById('thenVal').textContent=fmtCr(house);
+  if(delayYears===0){
+    document.getElementById('thenNote').textContent='buying today';
+  } else {
+    document.getElementById('thenNote').textContent=`${fmtCr(currentHouse)} today · +${fmtCr(house-currentHouse)} in ${delayYears} yr`;
+  }
+  document.getElementById('dpVal').textContent=dpPct+'% · '+fmtCr(house*dpPct/100);
+  document.getElementById('rateVal').textContent=annual.toFixed(2)+'%';
+  document.getElementById('tenVal').textContent=tenureY+' yrs';
+  document.getElementById('posVal').textContent=possession===0?'Immediate':possession+' years';
+
+  const fracs=disbFractions();
+  const sim=simulate(house,dpPct,annual,tenureY,possession,prepays,prepayMode,fracs);
+  const base=simulate(house,dpPct,annual,tenureY,possession,[],prepayMode,fracs);
+
+  // hero
+  document.getElementById('emiBig').textContent=fmtRupee(sim.baseEmi);
+  let meta=`on a ${fmtCr(sim.loan)} loan @ ${annual.toFixed(2)}% for ${tenureY} yrs`;
+  if(delayYears>0) meta+=` · booked in ${delayYears} yr at ${fmtCr(house)}`;
+  if(possession>0) meta+=` · EMI starts ${possession} yr after booking`;
+  document.getElementById('emiMeta').textContent=meta;
+
+  // stats
+  document.getElementById('loanAmt').innerHTML=fmtCr(sim.loan)+` <small>(${(100-dpPct)}% of cost)</small>`;
+  if(possession>0){
+    document.getElementById('preEmi').innerHTML=fmtRupee(sim.firstPre)+` <small>→ ${fmtRupee(sim.lastPre)}</small>`;
+  } else {
+    document.getElementById('preEmi').innerHTML='—  <small>immediate possession</small>';
+  }
+  document.getElementById('totInt').textContent=fmtCr(sim.totalInt);
+  document.getElementById('totOut').textContent=fmtCr(sim.totalOutflow);
+
+  // savings banner
+  const sv=document.getElementById('savings');
+  if(sim.totPrepay>0){
+    const intSaved=base.totalInt - sim.totalInt;
+    const moSaved=base.actualEmiMonths - sim.actualEmiMonths;
+    sv.style.display='block';
+    if(prepayMode==='reduceTenure'){
+      sv.innerHTML=`Prepaying <b>${fmtCr(sim.totPrepay)}</b> saves you <b>${fmtCr(intSaved)}</b> in interest and clears the loan <b>${yrMo(moSaved)}</b> early.`;
+    } else {
+      sv.innerHTML=`Prepaying <b>${fmtCr(sim.totPrepay)}</b> saves <b>${fmtCr(intSaved)}</b> in interest and lowers your later EMIs (tenure unchanged).`;
+    }
+  } else { sv.style.display='none'; }
+
+  // schedule
+  lastSim=sim;
+  renderSchedule();
+
+  drawChart(sim);
+
+  // money outflow
+  const ofParams={
+    house, dpPct, possession, fracs, delayYears,
+    rentY:+document.getElementById('rent').value,
+    rentInc:+document.getElementById('rentInc').value||0,
+    household:+document.getElementById('household').value||0,
+    householdInc:+document.getElementById('householdInc').value||0,
+    gst:+document.getElementById('gst').value||0,
+    reg:+document.getElementById('reg').value||0,
+    ovh:+document.getElementById('ovh').value||0
+  };
+  document.getElementById('rentVal').textContent=fmtRupee(ofParams.rentY)+'/mo';
+  lastOutflow=buildOutflow(sim, ofParams);
+  renderOutflow();
+
+  // net worth
+  const startIncome=+document.getElementById('income').value;
+  const startSavings=(+document.getElementById('corpus').value)*1e5; // slider is in Lakh
+  const retireYears=+document.getElementById('retire').value;
+  document.getElementById('incVal').textContent=fmtRupee(startIncome);
+  document.getElementById('savVal').textContent=fmtCr(startSavings);
+  document.getElementById('retVal').textContent=retireYears+' years';
+  const netParams={
+    startIncome,
+    startSavings,
+    house, delayM:delayYears*12, growth, retireYears,
+    incGrow:+document.getElementById('incGrow').value||0,
+    savRet:+document.getElementById('savRet').value||0,
+    household:+document.getElementById('household').value||0,
+    householdInc:+document.getElementById('householdInc').value||0,
+    oneoffs
+  };
+  lastNet=buildNetWorth(lastOutflow, netParams);
+  renderNet();
+
+  saveState();
+}
+
+// ---- schedule: yearly or monthly ----
+function renderSchedule(){
+  if(!lastSim) return;
+  const head=document.getElementById('schedHead');
+  const body=document.getElementById('schedBody');
+
+  if(schedView==='month'){
+    head.innerHTML='<tr><th>Month</th><th>Payment</th><th>Interest</th><th>Principal</th><th>Prepaid</th><th>Balance</th></tr>';
+    let html='';
+    lastSim.rows.forEach(rw=>{
+      const y=Math.floor(rw.m/12)+1, mo=rw.m%12+1;
+      const payment = rw.phase==='pre' ? rw.interest : rw.interest+rw.principal;
+      let cls = rw.phase==='pre' ? 'phase-pre' : '';
+      if(rw.prepay>0) cls+=' has-prepay';
+      html+=`<tr class="${cls}"><td>Y${y} · M${mo}</td>`+
+        `<td>${fmtRupee(payment)}</td>`+
+        `<td>${fmtRupee(rw.interest)}</td>`+
+        `<td>${rw.principal>0?fmtRupee(rw.principal):'—'}</td>`+
+        `<td>${rw.prepay>0?fmtRupee(rw.prepay):'—'}</td>`+
+        `<td>${fmtRupee(Math.max(0,rw.balance))}</td></tr>`;
+    });
+    body.innerHTML=html;
+    return;
+  }
+
+  // yearly aggregation
+  head.innerHTML='<tr><th>Year</th><th>Interest</th><th>Principal</th><th>Prepaid</th><th>Balance left</th></tr>';
+  const years={};
+  lastSim.rows.forEach(rw=>{
+    const y=Math.floor(rw.m/12)+1;
+    if(!years[y]) years[y]={interest:0,principal:0,prepay:0,balance:rw.balance,phase:rw.phase};
+    years[y].interest+=rw.interest; years[y].principal+=rw.principal;
+    years[y].prepay+=rw.prepay; years[y].balance=rw.balance; years[y].phase=rw.phase;
+  });
+  let html='';
+  Object.keys(years).map(Number).sort((a,b)=>a-b).forEach(y=>{
+    const d=years[y];
+    let cls = d.phase==='pre' ? 'phase-pre' : '';
+    if(d.prepay>0) cls+=' has-prepay';
+    html+=`<tr class="${cls}"><td>Year ${y}</td><td>${fmtCr(d.interest)}</td>`+
+      `<td>${d.principal>0?fmtCr(d.principal):'—'}</td>`+
+      `<td>${d.prepay>0?fmtCr(d.prepay):'—'}</td>`+
+      `<td>${fmtCr(Math.max(0,d.balance))}</td></tr>`;
+  });
+  body.innerHTML=html;
+}
+
+function drawChart(sim){
+  const labels=sim.rows.map(r=>(r.m/12).toFixed(2));
+  const data=sim.rows.map(r=>Math.max(0,r.balance));
+  const consM=sim.consM;
+  const prepayPts=sim.rows.map(r=>r.prepay>0?Math.max(0,r.balance):null);
+
+  const ctx=document.getElementById('chart');
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[
+      {
+        data, borderWidth:2.5, pointRadius:0, tension:.12, fill:true,
+        backgroundColor:'rgba(28,75,58,.07)',
+        segment:{borderColor:c=>c.p1DataIndex<consM?'#b6792a':'#1c4b3a'},
+        borderColor:'#1c4b3a'
+      },
+      {
+        data:prepayPts, pointRadius:5, pointHoverRadius:7, showLine:false,
+        pointBackgroundColor:'#8a3324', pointBorderColor:'#fbf7ee', pointBorderWidth:2
+      }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{
+          callbacks:{
+            title:i=>'Year '+(+i[0].label).toFixed(1),
+            label:c=>{
+              if(c.datasetIndex===1) return 'Prepayment made';
+              return 'Outstanding: '+fmtCr(c.parsed.y);
+            }
+          },
+          backgroundColor:'#1c1b17', padding:10, titleFont:{family:'IBM Plex Mono',size:11},
+          bodyFont:{family:'Hanken Grotesk',size:13}
+        }
+      },
+      scales:{
+        x:{title:{display:true,text:'Years from loan start',font:{family:'Hanken Grotesk',size:11},color:'#4a463c'},
+           ticks:{maxTicksLimit:10,color:'#4a463c',font:{family:'IBM Plex Mono',size:10},
+                  callback:function(v){const l=this.getLabelForValue(v);return Number.isInteger(+l)?l:'';}},
+           grid:{color:'rgba(216,207,186,.5)'}},
+        y:{ticks:{color:'#4a463c',font:{family:'IBM Plex Mono',size:10},callback:v=>fmtCr(v)},
+           grid:{color:'rgba(216,207,186,.5)'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ===== MONEY OUTFLOW =====
+function buildOutflow(sim, p){
+  const house=p.house;                   // "then value" at booking
+  const downpay=house*p.dpPct/100;
+  const consM=sim.consM;
+  const delayM=(p.delayYears||0)*12;     // waiting years before booking
+  const possMonthLoan=consM;             // possession in loan-time
+  const rentEndAbs=delayM+consM;         // rent runs from today until possession
+  const gstAmt=house*p.gst/100, regAmt=house*p.reg/100, ovhAmt=house*p.ovh/100;
+  const charges=gstAmt+regAmt+ovhAmt;
+  let fracs;
+  if(consM>0){
+    fracs = (p.fracs && p.fracs.length===p.possession) ? p.fracs.slice() : Array(p.possession).fill(1/p.possession);
+    const s=fracs.reduce((a,b)=>a+b,0); fracs = s>0 ? fracs.map(f=>f/s) : Array(p.possession).fill(1/p.possession);
+  }
+  const rentAt = yr => p.rentY*Math.pow(1+p.rentInc/100, yr);
+  const hhAt = yr => (p.household||0)*Math.pow(1+(p.householdInc||0)/100, yr);
+
+  const rows=[];
+  let totSalary=0,totSavings=0,totRent=0,totEmi=0,totHh=0,peak=0,peakM=0;
+  const push=(mAbs,phase,rent,emi,hh,dp,taxes,prepay,poss,loanBal,grossDisb)=>{
+    const salary=rent+emi+hh, savings=dp+taxes+prepay, total=salary+savings;
+    totSalary+=salary; totSavings+=savings; totRent+=rent; totEmi+=emi; totHh+=hh;
+    if(total>peak){ peak=total; peakM=mAbs; }
+    rows.push({m:mAbs,phase,rent,emi,hh,dp,taxes,prepay,salary,savings,total,poss,loanBal:loanBal||0,grossDisb:grossDisb||0});
+  };
+
+  // 1) waiting phase — rent + household only, no house yet
+  for(let dm=0; dm<delayM; dm++){
+    push(dm,'wait',rentAt(Math.floor(dm/12)),0,hhAt(Math.floor(dm/12)),0,0,0,false,0,0);
+  }
+
+  // 2) loan phase — offset by the delay
+  const loanAmt=house-downpay;
+  let grossDisb=0;
+  sim.rows.forEach(rw=>{
+    const mAbs=delayM+rw.m;
+    const rent = (mAbs<rentEndAbs) ? rentAt(Math.floor(mAbs/12)) : 0;
+    const hh = hhAt(Math.floor(mAbs/12));
+    const emi  = rw.phase==='pre' ? rw.interest : rw.interest+rw.principal;
+    let dp=0;
+    if(consM>0){ if(rw.m%12===0 && (rw.m/12)<p.possession){ dp=downpay*fracs[rw.m/12]; grossDisb+=loanAmt*fracs[rw.m/12]; } }
+    else if(rw.m===0){ dp=downpay; grossDisb=loanAmt; }
+    const taxes = (rw.m===possMonthLoan) ? charges : 0;
+    push(mAbs, rw.phase, rent, emi, hh, dp, taxes, rw.prepay, rw.m===possMonthLoan, rw.balance, grossDisb);
+  });
+
+  return {rows,totSalary,totSavings,total:totSalary+totSavings,peak,peakM,totRent,totEmi,totHh,
+          downpay,charges,gstAmt,regAmt,ovhAmt,possMonth:delayM+possMonthLoan,delayM,
+          household:p.household||0, householdInc:p.householdInc||0};
+}
+
+function renderOutflow(){
+  if(!lastOutflow) return;
+  const o=lastOutflow;
+  document.getElementById('ofSalary').textContent=fmtCr(o.totSalary);
+  document.getElementById('ofSavings').textContent=fmtCr(o.totSavings);
+  document.getElementById('ofTotal').textContent=fmtCr(o.total);
+  const py=Math.floor(o.peakM/12)+1, pm=o.peakM%12+1;
+  document.getElementById('ofPeak').innerHTML=fmtCr(o.peak)+` <small>(Y${py}·M${pm})</small>`;
+
+  const pct=(+document.getElementById('gst').value)+(+document.getElementById('reg').value)+(+document.getElementById('ovh').value);
+  document.getElementById('chargeHint').textContent=
+    `GST + registration + overhead = ${pct.toFixed(1)}% of house = ${fmtCr(o.charges)}, charged once at possession.`;
+
+  const ot=document.getElementById('onetime');
+  const card=(l,v)=>`<div class="ot-card"><p class="l">${l}</p><p class="v">${fmtCr(v)}</p></div>`;
+  ot.innerHTML=
+    card('Down payment',o.downpay)+card('GST',o.gstAmt)+card('Registration',o.regAmt)+card('Overhead',o.ovhAmt)+
+    `<div class="ot-card tot"><p class="l">Total one-time</p><p class="v">${fmtCr(o.downpay+o.charges)}</p></div>`;
+
+  renderOfTable();
+  drawOfChart();
+}
+
+function renderOfTable(){
+  if(!lastOutflow) return;
+  const head=document.getElementById('ofHead'), body=document.getElementById('ofBody');
+  head.innerHTML='<tr><th>'+(ofTblView==='month'?'Month':'Year')+'</th><th>Rent</th><th>EMI</th><th>Household</th><th>From salary</th><th>From savings</th><th>Total</th></tr>';
+  const fmt = ofTblView==='month' ? fmtRupee : fmtCr;
+  let html='';
+  if(ofTblView==='month'){
+    lastOutflow.rows.forEach(r=>{
+      const y=Math.floor(r.m/12)+1, mo=r.m%12+1;
+      html+=`<tr class="${r.poss?'row-poss':''}"><td>Y${y}·M${mo}</td>`+
+        `<td>${r.rent>0?fmt(r.rent):'—'}</td><td>${r.emi>0?fmt(r.emi):'—'}</td><td>${fmt(r.hh)}</td>`+
+        `<td>${fmt(r.salary)}</td><td>${r.savings>0?fmt(r.savings):'—'}</td>`+
+        `<td>${fmt(r.total)}</td></tr>`;
+    });
+  } else {
+    const ys={};
+    lastOutflow.rows.forEach(r=>{const y=Math.floor(r.m/12)+1; if(!ys[y])ys[y]={rent:0,emi:0,hh:0,s:0,v:0,t:0,poss:false}; const a=ys[y]; a.rent+=r.rent;a.emi+=r.emi;a.hh+=r.hh;a.s+=r.salary;a.v+=r.savings;a.t+=r.total; if(r.poss)a.poss=true;});
+    Object.keys(ys).map(Number).sort((a,b)=>a-b).forEach(y=>{const a=ys[y];
+      html+=`<tr class="${a.poss?'row-poss':''}"><td>Year ${y}</td>`+
+        `<td>${a.rent>0?fmt(a.rent):'—'}</td><td>${a.emi>0?fmt(a.emi):'—'}</td><td>${fmt(a.hh)}</td>`+
+        `<td>${fmt(a.s)}</td><td>${a.v>0?fmt(a.v):'—'}</td><td>${fmt(a.t)}</td></tr>`;
+    });
+  }
+  body.innerHTML=html;
+}
+
+function ofSeries(){
+  const o=lastOutflow;
+  if(ofChartView==='month'){
+    return {labels:o.rows.map(r=>(r.m/12).toFixed(2)), salary:o.rows.map(r=>r.salary), savings:o.rows.map(r=>r.savings), monthly:true};
+  }
+  const ys={};
+  o.rows.forEach(r=>{const y=Math.floor(r.m/12)+1; if(!ys[y])ys[y]={s:0,v:0}; ys[y].s+=r.salary; ys[y].v+=r.savings;});
+  const keys=Object.keys(ys).map(Number).sort((a,b)=>a-b);
+  return {labels:keys.map(k=>''+k), salary:keys.map(k=>ys[k].s), savings:keys.map(k=>ys[k].v), monthly:false};
+}
+
+function drawOfChart(){
+  if(!lastOutflow) return;
+  const s=ofSeries();
+  const ctx=document.getElementById('ofChart');
+  if(outflowChart) outflowChart.destroy();
+  outflowChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:s.labels,datasets:[
+      {label:'From salary',data:s.salary,backgroundColor:'#2a6b52',stack:'o',borderWidth:0,
+       barPercentage:1,categoryPercentage:s.monthly?1:0.7},
+      {label:'From savings',data:s.savings,backgroundColor:'#b6792a',stack:'o',borderWidth:0,
+       barPercentage:1,categoryPercentage:s.monthly?1:0.7}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{mode:'index',intersect:false,
+          callbacks:{
+            title:i=> s.monthly ? 'Year '+(+i[0].label).toFixed(1) : 'Year '+i[0].label,
+            label:c=>c.dataset.label+': '+fmtCr(c.parsed.y),
+            footer:items=>'Total: '+fmtCr(items.reduce((a,b)=>a+b.parsed.y,0))
+          },
+          backgroundColor:'#1c1b17',padding:10,titleFont:{family:'IBM Plex Mono',size:11},
+          bodyFont:{family:'Hanken Grotesk',size:12.5},footerFont:{family:'Hanken Grotesk',size:12.5}}
+      },
+      scales:{
+        x:{stacked:true,title:{display:true,text:s.monthly?'Years from today':'Year (from today)',font:{family:'Hanken Grotesk',size:11},color:'#4a463c'},
+           ticks:{maxTicksLimit:12,color:'#4a463c',font:{family:'IBM Plex Mono',size:10},
+                  callback:function(v){const l=this.getLabelForValue(v);return s.monthly?(Number.isInteger(+l)?l:''):l;}},
+           grid:{display:false}},
+        y:{stacked:true,ticks:{color:'#4a463c',font:{family:'IBM Plex Mono',size:10},callback:v=>fmtCr(v)},
+           grid:{color:'rgba(216,207,186,.5)'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ===== NET WORTH =====
+function buildNetWorth(outflow, p){
+  const omap={};
+  p.oneoffs.forEach(o=>{ if(o.lakh>0 && o.year>=1){ const m=(o.year-1)*12; omap[m]=(omap[m]||0)+o.lakh*1e5; } });
+  const mRet=Math.pow(1+p.savRet/100, 1/12)-1;
+  const delayM=p.delayM||0;
+  const possMonthAbs=outflow.possMonth;  // absolute month of possession (from today)
+  const contractPrice=p.house;          // then-value at booking (nominal price)
+  const gMonthly=Math.pow(1+p.growth/100, 1/12);
+  const retireYears=p.retireYears||999;
+
+  const hhAt = yr => (outflow.household||0)*Math.pow(1+(outflow.householdInc||0)/100, yr);
+
+  // step list = outflow months (total already includes household), then synthetic post-loan months
+  // (loan & rent done, but household continues) so retirement & corpus drawdown are visible
+  const steps=outflow.rows.map(r=>({m:r.m,total:r.total,dp:r.dp,loanBal:r.loanBal,poss:r.poss}));
+  const lastOutMonth=steps.length?steps[steps.length-1].m:-1;
+  const horizon=Math.min(600, Math.max(lastOutMonth, retireYears*12 + 120)); // ~10y past retirement, capped at 50y
+  for(let mm=lastOutMonth+1; mm<=horizon; mm++) steps.push({m:mm,total:hhAt(Math.floor(mm/12)),dp:0,loanBal:0,poss:false});
+
+  const rows=[];
+  let nw=p.startSavings, totInc=0, totSpend=0, low=Infinity, lowM=0, redCount=0, firstRed=null;
+  let cumDownPaid=0;
+  steps.forEach(r=>{
+    const m=r.m, yr=Math.floor(m/12);
+    const working = yr < retireYears;
+    const income = working ? p.startIncome*Math.pow(1+p.incGrow/100, yr) : 0;  // salary stops at retirement
+    const oneoff=omap[m]||0;
+    const inflow=income+oneoff;
+    const spend=r.total;                    // r.total already includes rent+EMI+household+dp+charges+prepay
+    const net=inflow-spend;
+    nw=nw*(1+mRet)+net;                      // liquid net worth
+    totInc+=inflow; totSpend+=spend;
+    cumDownPaid+=r.dp;
+
+    // home equity
+    //  · pre-possession: just the money you've put in (recoverable at par, no appreciation)
+    //  · from possession: sell-&-settle market value minus the outstanding loan
+    let houseMkt=0, equity=0, owned=false;
+    if(m>=delayM){
+      owned=true;
+      if(m>=possMonthAbs){
+        houseMkt = contractPrice*Math.pow(gMonthly, m-delayM);
+        equity = houseMkt - r.loanBal;
+      } else {
+        equity = cumDownPaid;                 // money paid to builder so far — get it back, no gain
+        houseMkt = cumDownPaid;
+      }
+    }
+    const total = nw + equity;                // total net worth = liquid + home equity
+
+    const red=nw<0;
+    if(red){ redCount++; if(firstRed===null) firstRed=m; }
+    if(nw<low){ low=nw; lowM=m; }
+    rows.push({m,income,oneoff,outflow:r.total,spend,net,nw,houseMkt,equity,owned,total,red,poss:r.poss,retired:!working});
+  });
+  const last=rows[rows.length-1]||{nw:nw,total:nw};
+  return {rows,endNw:nw,endTotal:last.total,totInc,totSpend,low,lowM,redCount,firstRed,startSavings:p.startSavings,retireMonth:retireYears*12};
+}
+
+function renderNet(){
+  if(!lastNet) return;
+  const n=lastNet;
+  document.getElementById('nwTotal').textContent=fmtCrS(n.endTotal);
+  document.getElementById('nwEnd').textContent=fmtCrS(n.endNw);
+  const ly=Math.floor(n.lowM/12)+1, lm=n.lowM%12+1;
+  document.getElementById('nwLow').innerHTML=fmtCrS(n.low)+` <small>(Y${ly}·M${lm})</small>`;
+  document.getElementById('nwRed').innerHTML = n.redCount>0
+    ? `<span style="color:var(--red)">${n.redCount}</span> <small>of ${n.rows.length}</small>`
+    : `0 <small>all clear</small>`;
+
+  const banner=document.getElementById('nwBanner');
+  const retYr=Math.round(n.retireMonth/12);
+  const endYr=Math.round((n.rows[n.rows.length-1].m+1)/12);
+  const retNote = ` Salary stops at year ${retYr}; the timeline runs to year ${endYr}.`;
+  if(n.redCount>0){
+    const fy=Math.floor(n.firstRed/12)+1, fm=n.firstRed%12+1;
+    banner.className='nw-banner bad';
+    banner.innerHTML=`⚠ Liquid net worth goes negative in <b>${n.redCount}</b> month(s), first around <b>Y${fy}·M${fm}</b> (low of <b>${fmtCrS(n.low)}</b>).${retNote} You'd need more savings, higher income, a later retirement, or a smaller purchase.`;
+  } else {
+    banner.className='nw-banner ok';
+    banner.innerHTML=`✓ Liquid net worth stays positive throughout, bottoming at <b>${fmtCrS(n.low)}</b>.${retNote} Ending liquid: <b>${fmtCrS(n.endNw)}</b>.`;
+  }
+
+  renderNetTable();
+  drawNetChart();
+}
+
+function renderNetTable(){
+  if(!lastNet) return;
+  const head=document.getElementById('nwHead'), body=document.getElementById('nwBody');
+  head.innerHTML='<tr><th>'+(netTblView==='month'?'Month':'Year')+'</th><th>Income</th><th>Spend</th><th>Net flow</th><th>Liquid (cash)</th><th>Home equity (sale−loan)</th><th>Total net worth</th></tr>';
+  const fmt = netTblView==='month' ? fmtRupee : fmtCr;
+  let html='';
+  const retM=lastNet.retireMonth;
+  if(netTblView==='month'){
+    lastNet.rows.forEach(r=>{
+      const y=Math.floor(r.m/12)+1, mo=r.m%12+1;
+      let cls=r.red?'row-red':''; if(r.poss)cls+=' row-poss'; if(r.m===retM)cls+=' row-retire';
+      html+=`<tr class="${cls}"><td>Y${y}·M${mo}</td>`+
+        `<td>${r.income>0?fmt(r.income):'—'}</td><td>${fmt(r.spend)}</td>`+
+        `<td>${(r.net<0?'−':'')+fmt(Math.abs(r.net))}</td>`+
+        `<td>${fmtCrS(r.nw)}</td>`+
+        `<td>${r.owned?fmtCrS(r.equity):'—'}</td>`+
+        `<td>${fmtCrS(r.total)}</td></tr>`;
+    });
+  } else {
+    const ys={};
+    lastNet.rows.forEach(r=>{const y=Math.floor(r.m/12)+1; if(!ys[y])ys[y]={inc:0,sp:0,net:0,nw:r.nw,eq:r.equity,owned:r.owned,total:r.total,red:false,poss:false,ret:false}; const a=ys[y]; a.inc+=r.income;a.sp+=r.spend;a.net+=r.net;a.nw=r.nw;a.eq=r.equity;a.total=r.total; if(r.owned)a.owned=true; if(r.red)a.red=true; if(r.poss)a.poss=true; if(r.m===retM)a.ret=true;});
+    Object.keys(ys).map(Number).sort((a,b)=>a-b).forEach(y=>{const a=ys[y];
+      let cls=a.red?'row-red':''; if(a.poss)cls+=' row-poss'; if(a.ret)cls+=' row-retire';
+      html+=`<tr class="${cls}"><td>Year ${y}</td>`+
+        `<td>${a.inc>0?fmt(a.inc):'—'}</td><td>${fmt(a.sp)}</td>`+
+        `<td>${(a.net<0?'−':'')+fmt(Math.abs(a.net))}</td>`+
+        `<td>${fmtCrS(a.nw)}</td>`+
+        `<td>${a.owned?fmtCrS(a.eq):'—'}</td>`+
+        `<td>${fmtCrS(a.total)}</td></tr>`;
+    });
+  }
+  body.innerHTML=html;
+}
+
+function drawNetChart(){
+  if(!lastNet) return;
+  const ctx=document.getElementById('nwChart');
+  const legend=document.getElementById('nwLegend');
+  if(netChart) netChart.destroy();
+  const labels=lastNet.rows.map(r=>(r.m/12).toFixed(2));
+
+  if(netChartView==='networth'){
+    const liquid=lastNet.rows.map(r=>r.nw);
+    const total=lastNet.rows.map(r=>r.total);
+    const redPts=lastNet.rows.map(r=>r.red?r.nw:null);
+    netChart=new Chart(ctx,{
+      type:'line',
+      data:{labels,datasets:[
+        {label:'Total net worth',data:total, borderColor:'#b6792a', borderWidth:2.5, pointRadius:0, tension:.1, fill:true, backgroundColor:'rgba(182,121,42,.06)'},
+        {label:'Liquid (cash)',data:liquid, borderWidth:2.5, pointRadius:0, tension:.1, fill:true,
+         backgroundColor:'rgba(28,75,58,.08)', borderColor:'#1c4b3a',
+         segment:{borderColor:c=>(c.p0.parsed.y<0||c.p1.parsed.y<0)?'#8a3324':'#1c4b3a'}},
+        {label:'_red',data:redPts, pointRadius:3, showLine:false, pointBackgroundColor:'#8a3324', pointBorderColor:'#fbf7ee', pointBorderWidth:1},
+        {label:'_zero',data:labels.map(()=>0), borderColor:'rgba(74,70,60,.55)', borderWidth:1, borderDash:[5,4], pointRadius:0, fill:false}
+      ]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          tooltip:{mode:'index',intersect:false,filter:i=>i.dataset.label && !i.dataset.label.startsWith('_'),
+            callbacks:{title:i=>'Year '+(+i[0].label).toFixed(1), label:c=>c.dataset.label+': '+fmtCrS(c.parsed.y)},
+            backgroundColor:'#1c1b17',padding:10,titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'Hanken Grotesk',size:12.5}}
+        },
+        scales:nwAxes('Years from today')
+      }
+    });
+    legend.innerHTML='<span><i class="dot" style="background:var(--amber)"></i>Total net worth (cash + home equity)</span>'+
+      '<span><i class="dot" style="background:var(--green)"></i>Liquid (cash only)</span>'+
+      '<span><i class="dot" style="background:var(--red)"></i>Cash in the red</span>'+
+      '<span><i class="dot" style="background:#9a948a"></i>Break-even (₹0)</span>';
+  } else {
+    const data=lastNet.rows.map(r=>r.net);
+    const colors=lastNet.rows.map(r=>r.net>=0?'#2a6b52':'#8a3324');
+    netChart=new Chart(ctx,{
+      type:'bar',
+      data:{labels,datasets:[{label:'Net flow',data,backgroundColor:colors,borderWidth:0,barPercentage:1,categoryPercentage:1}]},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          tooltip:{mode:'index',intersect:false,
+            callbacks:{title:i=>'Year '+(+i[0].label).toFixed(1), label:c=>'Net flow: '+fmtCrS(c.parsed.y)},
+            backgroundColor:'#1c1b17',padding:10,titleFont:{family:'IBM Plex Mono',size:11},bodyFont:{family:'Hanken Grotesk',size:12.5}}
+        },
+        scales:nwAxes('Years from today')
+      }
+    });
+    legend.innerHTML='<span><i class="dot" style="background:var(--green)"></i>Surplus month (saved)</span>'+
+      '<span><i class="dot" style="background:var(--red)"></i>Deficit month (drawn down)</span>';
+  }
+}
+
+function nwAxes(xtitle){
+  return {
+    x:{title:{display:true,text:xtitle,font:{family:'Hanken Grotesk',size:11},color:'#4a463c'},
+       ticks:{maxTicksLimit:12,color:'#4a463c',font:{family:'IBM Plex Mono',size:10},
+              callback:function(v){const l=this.getLabelForValue(v);return Number.isInteger(+l)?l:'';}},
+       grid:{display:false}},
+    y:{ticks:{color:'#4a463c',font:{family:'IBM Plex Mono',size:10},callback:v=>fmtCrS(v)},
+       grid:{color:'rgba(216,207,186,.5)'}}
+  };
+}
+
+// ---- in-browser persistence (works when opened in a normal browser; safely no-ops if storage is blocked) ----
+const STORE_KEY='homeLoanPlanner.v1';
+const SLIDER_IDS=['house','dp','rate','tenure','bookDelay','growth','income','corpus','retire','rent'];
+const NUM_IDS=['rentInc','household','householdInc','gst','reg','ovh'];
+
+function saveState(){
+  try{
+    const s={inputs:{}};
+    [...SLIDER_IDS,...NUM_IDS].forEach(id=>{const el=document.getElementById(id); if(el) s.inputs[id]=el.value;});
+    s.possession=possession; s.prepayMode=prepayMode; s.disbMode=disbMode; s.disbCustom=disbCustom;
+    s.prepays=prepays; s.oneoffs=oneoffs;
+    s.schedView=schedView; s.ofChartView=ofChartView; s.ofTblView=ofTblView;
+    s.netChartView=netChartView; s.netTblView=netTblView; s.activeTab=activeTab;
+    localStorage.setItem(STORE_KEY, JSON.stringify(s));
+  }catch(e){/* storage unavailable — values just won't persist in this context */}
+}
+function setActiveBtn(sel, val, attr){
+  document.querySelectorAll(sel+' button').forEach(b=>{
+    const v = attr==='tab' ? b.dataset.tab : b.dataset.v;
+    b.classList.toggle('active', String(v)===String(val));
+  });
+}
+function loadState(){
+  let s;
+  try{ const raw=localStorage.getItem(STORE_KEY); if(!raw) return; s=JSON.parse(raw); }catch(e){ return; }
+  if(!s) return;
+  try{
+    if(s.inputs) Object.keys(s.inputs).forEach(id=>{const el=document.getElementById(id); if(el) el.value=s.inputs[id];});
+    SLIDER_IDS.forEach(id=>{const el=document.getElementById(id); if(el) paintSlider(el);});
+    if(s.possession!==undefined){ possession=+s.possession; setActiveBtn('#posSeg',possession); }
+    if(s.prepayMode){ prepayMode=s.prepayMode; setActiveBtn('#modeSeg',prepayMode); }
+    if(s.disbMode){ disbMode=s.disbMode; setActiveBtn('#disbSeg',disbMode); }
+    if(Array.isArray(s.disbCustom)) disbCustom=s.disbCustom;
+    if(Array.isArray(s.prepays)) prepays=s.prepays;
+    if(Array.isArray(s.oneoffs)) oneoffs=s.oneoffs;
+    if(s.schedView){ schedView=s.schedView; setActiveBtn('#viewSeg',schedView); }
+    if(s.ofChartView){ ofChartView=s.ofChartView; setActiveBtn('#ofViewSeg',ofChartView); }
+    if(s.ofTblView){ ofTblView=s.ofTblView; setActiveBtn('#ofTblSeg',ofTblView); }
+    if(s.netChartView){ netChartView=s.netChartView; setActiveBtn('#nwViewSeg',netChartView); }
+    if(s.netTblView){ netTblView=s.netTblView; setActiveBtn('#nwTblSeg',netTblView); }
+    if(s.activeTab){
+      activeTab=s.activeTab; setActiveBtn('#tabs',activeTab,'tab');
+      document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('active'));
+      const pane=document.getElementById('tab-'+activeTab); if(pane) pane.classList.add('active');
+    }
+  }catch(e){/* ignore partial/corrupt state */}
+}
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  location.reload();
+});
+
+// ---- init ----
+loadState();
+if(disbCustom.length!==possession) syncDisb();   // keep tranche count consistent with possession
+renderDisb();
+renderPrepays();
+renderOneoffs();
+recalc();
+// make sure the restored tab's chart sizes correctly
+setTimeout(()=>{
+  if(activeTab==='outflow'&&outflowChart) outflowChart.resize();
+  if(activeTab==='net'&&netChart) netChart.resize();
+},40);
+
+</script>
+</body>
+</html>
