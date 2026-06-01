@@ -52,6 +52,36 @@
   }
   .reset-btn:hover{border-color:var(--red);color:var(--red);}
   .save-note{font-size:12px;color:var(--green);font-style:italic;}
+
+  /* welcome modal */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:22px;
+    background:rgba(28,27,23,.55);backdrop-filter:blur(3px);
+  }
+  .modal-overlay.show{display:flex;animation:ovfade .25s ease;}
+  @keyframes ovfade{from{opacity:0;}to{opacity:1;}}
+  .modal-card{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:560px;width:100%;
+    padding:30px 32px;box-shadow:0 30px 80px -30px rgba(28,75,58,.7);position:relative;
+    max-height:88vh;overflow:auto;animation:cardin .3s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes cardin{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+  .modal-kicker{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--green);margin:0 0 8px;}
+  .modal-title{font-family:'Fraunces',serif;font-weight:900;font-size:30px;line-height:1;margin:0 0 14px;letter-spacing:-.015em;}
+  .modal-title em{font-style:italic;font-weight:500;color:var(--green);}
+  .modal-lead{font-size:14.5px;color:var(--ink-soft);margin:0 0 18px;line-height:1.5;}
+  .modal-feat{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+  .modal-feat > div{border-left:3px solid var(--green-2);padding-left:14px;}
+  .modal-feat b{display:block;font-family:'Fraunces',serif;font-size:15px;margin-bottom:2px;}
+  .modal-feat span{font-size:13px;color:var(--ink-soft);line-height:1.45;}
+  .modal-note{font-size:12.5px;color:var(--ink-soft);background:rgba(182,121,42,.07);border:1px solid var(--amber-soft);border-radius:10px;padding:11px 14px;margin:0 0 20px;line-height:1.5;}
+  .modal-btn{
+    width:100%;padding:13px;border-radius:11px;cursor:pointer;border:none;
+    background:linear-gradient(135deg,var(--green),var(--green-2));color:#f3ede1;
+    font-family:'Fraunces',serif;font-weight:600;font-size:16px;transition:transform .12s ease,box-shadow .12s ease;
+    box-shadow:0 10px 26px -10px rgba(28,75,58,.8);
+  }
+  .modal-btn:hover{transform:translateY(-1px);box-shadow:0 14px 32px -10px rgba(28,75,58,.9);}
   .kicker{
     font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.28em;
     text-transform:uppercase;color:var(--green);margin:0 0 8px;
@@ -288,6 +318,7 @@
 <body>
 <div class="wrap">
   <header class="masthead">
+    <button id="aboutBtn" class="reset-btn" style="right:84px;" title="What is this tool?">ⓘ About</button>
     <button id="resetBtn" class="reset-btn" title="Clear saved values and start fresh">↺ Reset</button>
     <p class="kicker">Under-construction property · India</p>
     <h1>Home Loan &amp; <em>EMI</em> Planner</h1>
@@ -613,6 +644,21 @@
         </div>
       </div><!-- /tab-net -->
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="introModal">
+  <div class="modal-card">
+    <p class="modal-kicker">Welcome</p>
+    <h2 class="modal-title">Home Loan &amp; <em>EMI</em> Planner</h2>
+    <p class="modal-lead">A planning sandbox for buying an under-construction home in India. Set your assumptions on the left and watch three connected views update live:</p>
+    <div class="modal-feat">
+      <div><b>① Loan &amp; EMI</b><span>Your EMI, the interest-only pre-EMI you pay while it's being built, and a full repayment schedule — with optional lump-sum prepayments.</span></div>
+      <div><b>② Money outflow</b><span>Every rupee leaving each month, split into what comes from <i>salary</i> (rent, EMI, household) versus <i>savings</i> (down payment, GST / registration / overhead, prepayments).</span></div>
+      <div><b>③ Net worth</b><span>Your income — with raises, bonuses and a retirement cut-off — minus all spending, tracking liquid cash and total net worth month by month, and flagging any month you'd slip into the red.</span></div>
+    </div>
+    <p class="modal-note">You can also model booking the house years from now (with price appreciation), delayed possession, and custom disbursement. Inputs are saved in this browser. These are simplified estimates for planning intuition — <b>not financial advice</b>.</p>
+    <button class="modal-btn" id="introClose">Start planning →</button>
   </div>
 </div>
 
@@ -1561,9 +1607,25 @@ function loadState(){
   }catch(e){/* ignore partial/corrupt state */}
 }
 document.getElementById('resetBtn').addEventListener('click',()=>{
-  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  try{ localStorage.removeItem(STORE_KEY); localStorage.removeItem(INTRO_KEY); }catch(e){}
   location.reload();
 });
+
+// ---- welcome modal (first open only) ----
+const INTRO_KEY='homeLoanPlanner.introSeen';
+const introModal=document.getElementById('introModal');
+function showIntro(){ introModal.classList.add('show'); }
+function hideIntro(){ introModal.classList.remove('show'); }
+document.getElementById('introClose').addEventListener('click',()=>{
+  hideIntro();
+  try{ localStorage.setItem(INTRO_KEY,'1'); }catch(e){}
+});
+document.getElementById('aboutBtn').addEventListener('click',showIntro);
+(function(){
+  let seen=false;
+  try{ seen = localStorage.getItem(INTRO_KEY)==='1'; }catch(e){ seen=false; }
+  if(!seen) showIntro();
+})();
 
 // ---- init ----
 loadState();
